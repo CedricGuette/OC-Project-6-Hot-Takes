@@ -1,13 +1,14 @@
 const express = require('express')
-const mongoose = require('mongoose')
-const path = require('path')
-
+const mongoose = require('mongoose') // used to communicate with MongoDb
+const path = require('path') // used to pathing the app
+// importing routes
 const sauceRoutes = require('./routes/sauce')
 const userRoutes = require('./routes/user')
-
+// initializing express.js
 const app = express()
 
 mongoose.set("strictQuery", false)
+// Connecting to mongoDB with API key
 mongoose.connect ('mongodb+srv://Admin:ng07Rudkxh8UZjUx@cluster0.sya8m9e.mongodb.net/?retryWrites=true&w=majority',
 { useNewUrlParser: true,
     useUnifiedTopology: true })
@@ -22,7 +23,7 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
     next()
 })
-
+// Adding pathes to requests
 app.use('/api/sauces', sauceRoutes)
 app.use('/api/auth', userRoutes)
 app.use('/images', express.static(path.join(__dirname, 'images')))

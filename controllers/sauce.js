@@ -2,10 +2,7 @@ const Sauce = require('../models/Sauce')
 const fs = require('fs')
 
 /**
- * 
- * @param {json} req 
- * @param {json} res 
- * @param {*} next 
+ *  This one will create a sauce and add it in DB
  */
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce)
@@ -20,40 +17,39 @@ exports.createSauce = (req, res, next) => {
     })
   
     sauce.save()
-    .then(() => { res.status(201).json({message: 'Objet enregistré !'})})
+    .then(() => { res.status(201).json({message: 'Sauce enregistrée!'})})
     .catch(error => { res.status(400).json( { error })})
 }
 
 /**
- * 
- * @param {json} req 
- * @param {json} res 
- * @param {*} next 
+ * This one will control when you edit a sauce looking for auth then if there is a file in req ant will PUT edit
+ * Will delete previous image file if edited
  */
 exports.modifySauce = (req, res, next) => {
-const sauceObject = req.file ? {
-    ...JSON.parse(req.body.sauce),
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-} : { ...req.body }
-// const sauceObject = {...req.body}
-// if(req.file) {
-//     delete sauceObjetct.imageUrl
-//     const filename = sauce.imageUrl.split('/images/')[1]
-//     fs.unlink(`images/${filename}`, () => {
-//     sauceObject.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-//         }
-//     })
 
+    const sauceObject = req.file ? {
+        ...JSON.parse(req.body.sauce),
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+    } : { ...req.body }
 
-delete sauceObject._userId
-Sauce.findOne({ _id: req.params.id })
+    delete sauceObject._userId
+    Sauce.findOne({ _id: req.params.id })
     .then((sauce) => {
         if (sauce.userId != req.auth.userId) {
             res.status(401).json({ message : 'Not authorized'})
         } else {
-            Sauce.updateOne({ _id: req.params.id}, { ...sauceObject, _id: req.params.id})
-            .then(() => res.status(200).json({message : 'Sauce modifiée!'}))
-            .catch(error => res.status(401).json({ error }))
+            if(req.file) {
+                const filename = sauce.imageUrl.split('/images/')[1]
+                fs.unlink(`images/${filename}`, () => {
+                    Sauce.updateOne({ _id: req.params.id}, { ...sauceObject, _id: req.params.id})
+                    .then(() => res.status(200).json({message : 'Sauce modifiée, image antérieure supprimée!'}))
+                    .catch(error => res.status(401).json({ error }))
+                })
+            } else {
+                Sauce.updateOne({ _id: req.params.id}, { ...sauceObject, _id: req.params.id})
+                .then(() => res.status(200).json({message : 'Sauce modifiée!'}))
+                .catch(error => res.status(401).json({ error }))
+            }
         }
     })
     .catch((error) => {
@@ -62,10 +58,7 @@ Sauce.findOne({ _id: req.params.id })
 }
 
  /**
- * 
- * @param {json} req 
- * @param {json} res 
- * @param {*} next 
+ * This one will delete a sauce from DB, delete image file associated too
  */
 exports.deleteSauce = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id })
@@ -85,10 +78,7 @@ exports.deleteSauce = (req, res, next) => {
 }
 
 /**
- * 
- * @param {json} req 
- * @param {json} res 
- * @param {*} next 
+ *  This one will provide a GET one sauce request
  */
 exports.getOneSauce = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id })
@@ -97,10 +87,7 @@ exports.getOneSauce = (req, res, next) => {
 }
 
 /**
- * 
- * @param {json} req 
- * @param {json} res 
- * @param {*} next 
+ * This one will provide a GET all sauces request
  */
 exports.getAllSauces = (req, res, next) => {
     Sauce.find()
@@ -109,10 +96,7 @@ exports.getAllSauces = (req, res, next) => {
 }
 
 /**
- * 
- * @param {json} req 
- * @param {json} res 
- * @param {*} next 
+ *  This one will manage all around like and dislike system
  */
 exports.likeSauce = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id })

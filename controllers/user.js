@@ -4,10 +4,7 @@ const jwt = require('jsonwebtoken')
 const User = require('../models/user')
 
 /**
- * 
- * @param {json} req 
- * @param {json} res 
- * @param {*} next 
+ * This will add an user only if the mail is not already in DB and will hach password
  */
 exports.signup = (req, res, next) => {
     bcrypt.hash(req.body.password, 10)
@@ -24,10 +21,7 @@ exports.signup = (req, res, next) => {
 }
 
 /**
- * 
- * @param {json} req 
- * @param {json} res 
- * @param {*} next 
+ * Check if mail and hached password matches and allow a token for authentification
  */
 exports.login = (req, res, next) => {
     User.findOne({ email: req.body.email })

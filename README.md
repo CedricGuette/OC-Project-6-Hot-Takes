@@ -1,5 +1,9 @@
 # OC-Project-6-Hot-Takes
 
+## Important ##
+
+You need to use your own API key from MongoDB, add it into .env before trying to run the script
+
 This project needs front-end files from this repo : https://github.com/OpenClassrooms-Student-Center/Web-Developer-P6
 
 I've made back-end for "Hot Takes" using express.js and mongoDb.

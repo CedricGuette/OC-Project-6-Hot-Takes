@@ -104,25 +104,48 @@ exports.likeSauce = (req, res, next) => {
 
         switch(req.body.like) {
             case 1:
-                if(!sauce.usersLiked.includes(req.auth.userId)) {
+                if(!sauce.usersLiked.includes(req.auth.userId) && sauce.usersDisliked.includes(req.auth.userId)) {
                     Sauce.updateOne(
                         { _id: req.params.id },
                         {
                             $inc: { likes: 1 },
-                            $push: { usersLiked: req.auth.userId }
+                            $inc: { dislikes: -1 },
+                            $push: { usersLiked: req.auth.userId },
+                            $pull: { usersDisliked: req.auth.userId }
                         }
                     )            
                     .then(() => res.status(200).json({message : 'Sauce likée!'}))
                     .catch(error => res.status(401).json({ error }))
-                } 
+                } else if(!sauce.usersLiked.includes(req.auth.userId)) {
+                    Sauce.updateOne(
+                        { _id: req.params.id },
+                        {
+                            $inc: { likes: 1 },
+                            $push: { usersLiked: req.auth.userId },
+                        }
+                    )            
+                    .then(() => res.status(200).json({message : 'Sauce likée!'}))
+                    .catch(error => res.status(401).json({ error }))
+                }
             break
             case -1:
-                if(!sauce.usersDisliked.includes(req.auth.userId)) {
+                if(!sauce.usersDisliked.includes(req.auth.userId) && sauce.usersLiked.includes(req.auth.userId)) {
+                    Sauce.updateOne(
+                    { _id: req.params.id },
+                    {
+                        $inc: { dislikes: 1 },
+                        $inc: { likes: -1 },
+                        $push: { usersDisliked: req.auth.userId },
+                        $pull: { userLiked: req.auth.userId }
+                    }                    )            
+                    .then(() => res.status(200).json({message : 'Sauce dislikée!'}))
+                    .catch(error => res.status(401).json({ error }))
+                } else if(!sauce.usersDisliked.includes(req.auth.userId)) {
                     Sauce.updateOne(
                         { _id: req.params.id },
                         {
                             $inc: { dislikes: 1 },
-                            $push: { usersDisliked: req.auth.userId }
+                            $push: { usersDisliked: req.auth.userId },
                         }
                     )            
                     .then(() => res.status(200).json({message : 'Sauce dislikée!'}))

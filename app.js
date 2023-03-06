@@ -2,6 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose') // used to communicate with MongoDb
 const path = require('path') // used to pathing the app
 const rateLimit = require('express-rate-limit')
+require('dotenv').config()
 // importing routes
 const sauceRoutes = require('./routes/sauce')
 const userRoutes = require('./routes/user')
@@ -10,7 +11,7 @@ const app = express()
 
 mongoose.set("strictQuery", false)
 // Connecting to mongoDB with API key
-mongoose.connect ('mongodb+srv://Admin:ng07Rudkxh8UZjUx@cluster0.sya8m9e.mongodb.net/?retryWrites=true&w=majority',
+mongoose.connect (process.env.API_MONGODB,
 { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
